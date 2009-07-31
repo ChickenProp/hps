@@ -1,0 +1,18 @@
+Hyper Primate Sphere
+
+Written in Clojure. Also requires my libraries gvec and cloggle, both available
+on my github page, as well as clojure-contrib.
+
+Get the hypersphere through the goal by rotating the spherical stage through the
+forth dimension. This dimension is represented by color: red points have a
+positive w-coordinate, blue points have a negative one. If the hypersphere falls
+off the stage without going through the goal, you lose.
+
+Controls: f,g rotate the stage in the x-w directions. e,d rotate it in y-w, and
+w,s rotate it in z-w. esc quits. Space restarts. Drag the mouse to change
+viewing position. (Known bug: this is a poorly implemented feature. If you move
+the camera too far from its original position, further movements will start to
+become hard to predict.)
+
+Passing the -d command line option will cause the controls to be made
+dvorak-suitable through the obvious substitutions.
