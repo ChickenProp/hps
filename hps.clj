@@ -127,11 +127,11 @@
 (defmacro vertex*
   "Macro version of vertex, for speed."
   [x y z]
-  `(. opengl-context glVertex3d ~x ~y ~z))
+  `(. *opengl-context* glVertex3d ~x ~y ~z))
 (defmacro color*
   "Macro version of color, for speed."
   [r g b a]
-  `(. opengl-context glColor4d ~r ~g ~b ~a))
+  `(. *opengl-context* glColor4d ~r ~g ~b ~a))
 
 (defmacro vertex-4 ; macro for speed.
   "Embeds a vertex in 3-space and colors it according to its w component.
@@ -175,23 +175,23 @@ Vertices with positive w are red, negative w displays blue. 0 w is white."
      (init [x])
      (reshape
       [#^GLAutoDrawable drawable x y w h]
-      (ctx (.getGL drawable)
-	(glPolygonMode GL_BACK GL_LINE)
-	(glEnable GL_BLEND)
-	;;(glEnable GL_LIGHTING)
-	;;(glEnable GL_LIGHT0)
-	;;(glEnable GL_COLOR_MATERIAL)
-	(glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
-	(glMatrixMode GL_PROJECTION)
-	(glLoadIdentity)
-	(glFrustum -1 1 -1 1 1 5)
-	;;(glOrtho -1 1 -1 1 1 5)
-	(glTranslatef 0 0 -2)
-	(glMatrixMode GL_MODELVIEW)
-	(glLoadIdentity))) 
+      (with-gl (.getGL drawable)
+	(polygon-mode gl-back gl-line)
+	(enable gl-blend)
+	;;(glenable gl-lighting)
+	;;(glenable gl-light0)
+	;;(glenable gl-color-material)
+	(blend-func gl-src-alpha gl-one-minus-src-alpha)
+	(matrix-mode gl-projection)
+	(load-identity)
+	(frustum -1 1 -1 1 1 5)
+	;;(glortho -1 1 -1 1 1 5)
+	(translate 0 0 -2)
+	(matrix-mode gl-modelview)
+	(load-identity))) 
      (display
       [#^GLAutoDrawable drawable]
-      (ctx (.getGL drawable)
+      (with-gl (.getGL drawable)
 	(dosync
 	 (if (not @init-time) (ref-set init-time (militime)))
 	 (when (and (not @game-state) (test-conditions))
@@ -204,17 +204,17 @@ Vertices with positive w are red, negative w displays blue. 0 w is white."
 	   (alter alpha - 0.05))
 	 (alter hsphere-vel + @hsphere-acc)
 	 (alter hsphere-pos + @hsphere-vel))
-	(glClear GL_COLOR_BUFFER_BIT)
-	(glClear GL_DEPTH_BUFFER_BIT)
-	(glLoadIdentity)
-	(glRotated (@view-pos :x) 0 1 0)
-	(glRotated (@view-pos :y) 1 0 0)
-	;;(glLightfv GL_LIGHT0 GL_POSITION [0.8 0.8 0 1] 0)
+	(clear gl-color-buffer-bit)
+	(clear gl-depth-buffer-bit)
+	(load-identity)
+	(rotate (@view-pos :x) 0 1 0)
+	(rotate (@view-pos :y) 1 0 0)
+	;;(glLightfv GL-LIGHT0 GL-POSITION [0.8 0.8 0 1] 0)
 	(doseq [l @stage-lines-rotated] ;200 points
-	  (beg-end GL_LINE_LOOP
+	  (with-primitive gl-line-loop
 	    (doseq [v l]
 	      (vertex-4 v))))
-	(beg-end GL_POINTS		;202 points
+	(with-primitive gl-points		;202 points
 	  (doseq [v hsphere-points]
 	    (vertex-4 (+ @hsphere-pos v)))
 	  (doseq [v goal-points]
